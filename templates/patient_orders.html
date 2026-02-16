@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ patient.name }} - My Orders</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .orders-list {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .order-tracking-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        }
+
+        .order-tracking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .order-tracking-header h3 {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .order-time {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .cooking-animation-container {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+        }
+
+        .chef-cooking {
+            font-size: 6rem;
+            animation: flip 2s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        @keyframes flip {
+            0%, 100% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+        }
+
+        .cooking-text {
+            font-size: 1.2rem;
+            color: white;
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+
+        .countdown-timer {
+            font-size: 2.5rem;
+            color: #FFD54F;
+            font-weight: 700;
+            margin-top: 1rem;
+        }
+
+        .estimated-time {
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 0.5rem;
+        }
+
+        .status-timeline {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            right: -50%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            z-index: 0;
+        }
+
+        .timeline-step:last-child::before {
+            display: none;
+        }
+
+        .timeline-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            margin: 0 auto 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-step.active .timeline-icon {
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            border-color: white;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
+        }
+
+        .timeline-step.completed .timeline-icon {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            border-color: white;
+        }
+
+        .timeline-step.completed::before {
+            background: linear-gradient(90deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .timeline-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .timeline-step.active .timeline-label,
+        .timeline-step.completed .timeline-label {
+            color: white;
+            font-weight: 600;
+        }
+
+        .ready-banner {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 700;
+            box-shadow: 0 4px 20px rgba(72, 187, 120, 0.4);
+        }
+
+        .empty-orders {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .empty-orders-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .back-to-meals-btn {
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-meals-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 242, 254, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="patient-detail-header">
+            <a href="/patient/{{ patient.id }}/meals" class="back-btn">← Back to Meal Plan</a>
+            
+            <div class="patient-detail-content">
+                <div class="patient-detail-avatar" style="background: {{ patient.avatar_color }};">
+                    {{ patient.name[0] }}
+                </div>
+                
+                <div class="patient-detail-info">
+                    <h1>{{ patient.name }}'s Orders</h1>
+                    <p style="color: rgba(255, 255, 255, 0.9); margin-top: 0.5rem;">
+                        Track your meal orders in real-time
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div id="ordersContainer" class="orders-list">
+            <!-- Orders will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        const patientId = '{{ patient.id }}';
+        let patientOrders = {{ orders | tojson }};
+
+        function getTimeRemaining(estimatedCompletion) {
+            const now = new Date();
+            const completion = new Date(estimatedCompletion);
+            const diff = completion - now;
+
+            if (diff <= 0) return { total: 0, minutes: 0, seconds: 0 };
+
+            const minutes = Math.floor((diff / 1000 / 60) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            return { total: diff, minutes, seconds };
+        }
+
+        function displayOrders() {
+            const container = document.getElementById('ordersContainer');
+
+            if (patientOrders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-orders">
+                        <div class="empty-orders-icon">🍽️</div>
+                        <h2>No orders yet</h2>
+                        <p>Go to your meal plan and order some delicious meals!</p>
+                        <a href="/patient/${patientId}" class="back-to-meals-btn">
+                            Browse Meal Plans
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = patientOrders.map(order => {
+                const timeRemaining = getTimeRemaining(order.estimated_completion);
+                const isCompleted = order.status === 'completed';
+                const isInProgress = order.status === 'in_progress' || order.status === 'accepted';
+
+                return `
+                    <div class="order-tracking-card">
+                        <div class="order-tracking-header">
+                            <div>
+                                <h3>${order.meal_name}</h3>
+                                <p class="order-time">${order.meal_type.charAt(0).toUpperCase() + order.meal_type.slice(1)} | ${order.day}</p>
+                            </div>
+                        </div>
+
+                        <div class="status-timeline">
+                            <div class="timeline-step ${order.status !== 'pending' ? 'completed' : 'active'}">
+                                <div class="timeline-icon">${order.status !== 'pending' ? '✓' : '📋'}</div>
+                                <div class="timeline-label">Order Placed</div>
+                            </div>
+                            <div class="timeline-step ${order.status === 'in_progress' || order.status === 'completed' ? 'completed' : order.status === 'accepted' ? 'active' : ''}">
+                                <div class="timeline-icon">${order.status === 'in_progress' || order.status === 'completed' ? '✓' : '👨‍🍳'}</div>
+                                <div class="timeline-label">Preparing</div>
+                            </div>
+                            <div class="timeline-step ${isCompleted ? 'completed active' : ''}">
+                                <div class="timeline-icon">${isCompleted ? '✓' : '🎉'}</div>
+                                <div class="timeline-label">Ready</div>
+                            </div>
+                        </div>
+
+                        ${isCompleted ? `
+                            <div class="ready-banner">
+                                🎉 Your meal is ready!<br>
+                                <span style="font-size: 1rem; font-weight: 400; margin-top: 0.5rem; display: block;">
+                                    Your delicious ${order.meal_name} will soon be delivered to you!
+                                </span>
+                            </div>
+                        ` : isInProgress ? `
+                            <div class="cooking-animation-container">
+                                <div class="chef-cooking">👨‍🍳🍳</div>
+                                <div class="cooking-text">Our chefs are preparing your meal...</div>
+                                <div class="countdown-timer" id="timer-${order.id}">
+                                    ${String(timeRemaining.minutes).padStart(2, '0')}:${String(timeRemaining.seconds).padStart(2, '0')}
+                                </div>
+                                <div class="estimated-time">Estimated delivery time</div>
+                            </div>
+                        ` : `
+                            <div class="cooking-animation-container">
+                                <div style="font-size: 4rem; margin-bottom: 1rem;">⏳</div>
+                                <div class="cooking-text">Waiting for kitchen to accept...</div>
+                            </div>
+                        `}
+                    </div>
+                `;
+            }).join('');
+
+            // Start countdown timers for in-progress orders
+            patientOrders.forEach(order => {
+                if (order.status === 'in_progress' || order.status === 'accepted') {
+                    updateCountdown(order.id, order.estimated_completion);
+                }
+            });
+        }
+
+        function updateCountdown(orderId, estimatedCompletion) {
+            const timerElement = document.getElementById(`timer-${orderId}`);
+            if (!timerElement) return;
+
+            const updateTimer = () => {
+                const timeRemaining = getTimeRemaining(estimatedCompletion);
+                
+                if (timeRemaining.total <= 0) {
+                    timerElement.textContent = '00:00';
+                    return;
+                }
+
+                timerElement.textContent = `${String(timeRemaining.minutes).padStart(2, '0')}:${String(timeRemaining.seconds).padStart(2, '0')}`;
+            };
+
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+
+        async function refreshOrders() {
+            try {
+                const response = await fetch('/api/orders');
+                const allOrders = await response.json();
+                patientOrders = allOrders.filter(order => order.patient_id === patientId);
+                displayOrders();
+            } catch (error) {
+                console.error('Error refreshing orders:', error);
+            }
+        }
+
+        // Display orders on page load
+        displayOrders();
+
+        // Refresh orders every 3 seconds
+        setInterval(refreshOrders, 3000);
+    </script>
+</body>
+</html>

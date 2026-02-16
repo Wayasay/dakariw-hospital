@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitchen Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .orders-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .order-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.25);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .order-info h3 {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .order-meta {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.3);
+            border: 1px solid rgba(255, 193, 7, 0.6);
+            color: #FFD54F;
+        }
+
+        .status-accepted {
+            background: rgba(33, 150, 243, 0.3);
+            border: 1px solid rgba(33, 150, 243, 0.6);
+            color: #64B5F6;
+        }
+
+        .status-in_progress {
+            background: rgba(156, 39, 176, 0.3);
+            border: 1px solid rgba(156, 39, 176, 0.6);
+            color: #BA68C8;
+        }
+
+        .status-completed {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid rgba(76, 175, 80, 0.6);
+            color: #81C784;
+        }
+
+        .order-details {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .detail-label {
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 12px;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .accept-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .accept-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        .progress-btn {
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(161, 140, 209, 0.3);
+        }
+
+        .progress-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(161, 140, 209, 0.4);
+        }
+
+        .complete-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        .complete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
+        }
+
+        .action-btn:disabled {
+            background: linear-gradient(135deg, #ccc 0%, #999 100%);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-tab.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .filter-tab:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <div>
+                    <h1>👨‍🍳 Kitchen Dashboard</h1>
+                    <p>Manage and prepare meal orders</p>
+                </div>
+                <a href="/staff" class="add-patient-btn">
+                    🏠 Staff Portal
+                </a>
+            </div>
+        </div>
+
+        <div class="filter-tabs">
+            <div class="filter-tab active" data-filter="all">All Orders</div>
+            <div class="filter-tab" data-filter="pending">Pending</div>
+            <div class="filter-tab" data-filter="accepted">Accepted</div>
+            <div class="filter-tab" data-filter="in_progress">In Progress</div>
+            <div class="filter-tab" data-filter="completed">Completed</div>
+        </div>
+
+        <div id="ordersContainer" class="orders-grid">
+            <div class="empty-state">
+                <div class="empty-state-icon">⏳</div>
+                <h2>Loading orders...</h2>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allOrders = [];
+        let currentFilter = 'all';
+
+        async function loadOrders() {
+            try {
+                const response = await fetch('/api/orders');
+                allOrders = await response.json();
+                displayOrders();
+            } catch (error) {
+                console.error('Error loading orders:', error);
+            }
+        }
+
+        function displayOrders() {
+            const container = document.getElementById('ordersContainer');
+            
+            let filteredOrders = allOrders;
+            if (currentFilter !== 'all') {
+                filteredOrders = allOrders.filter(order => order.status === currentFilter);
+            }
+
+            if (filteredOrders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h2>No ${currentFilter === 'all' ? '' : currentFilter} orders</h2>
+                        <p>Orders will appear here when patients place them</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredOrders.map(order => `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-info">
+                            <h3>${order.meal_name}</h3>
+                            <div class="order-meta">
+                                Patient: ${order.patient_name} | ${order.meal_type.charAt(0).toUpperCase() + order.meal_type.slice(1)} | ${order.day}
+                            </div>
+                        </div>
+                        <div class="status-badge status-${order.status}">
+                            ${order.status.replace('_', ' ')}
+                        </div>
+                    </div>
+
+                    <div class="order-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Order ID:</span>
+                            <span>${order.id.substring(0, 8)}...</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Order Time:</span>
+                            <span>${new Date(order.order_time).toLocaleString()}</span>
+                        </div>
+                        ${order.status === 'completed' ? `
+                        <div class="detail-row">
+                            <span class="detail-label">Completed:</span>
+                            <span>${new Date(order.completed_time).toLocaleString()}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="action-buttons">
+                        ${order.status === 'pending' ? `
+                            <button class="action-btn accept-btn" onclick="updateStatus('${order.id}', 'accepted')">
+                                ✅ Accept Order
+                            </button>
+                        ` : ''}
+                        
+                        ${order.status === 'accepted' ? `
+                            <button class="action-btn progress-btn" onclick="updateStatus('${order.id}', 'in_progress')">
+                                👨‍🍳 Start Cooking
+                            </button>
+                        ` : ''}
+                        
+                        ${order.status === 'in_progress' ? `
+                            <button class="action-btn complete-btn" onclick="updateStatus('${order.id}', 'completed')">
+                                🎉 Mark as Done
+                            </button>
+                        ` : ''}
+
+                        ${order.status === 'completed' ? `
+                            <button class="action-btn" disabled style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);">
+                                ✅ Completed
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function updateStatus(orderId, newStatus) {
+            try {
+                const response = await fetch(`/api/orders/${orderId}/status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    await loadOrders();
+                }
+            } catch (error) {
+                console.error('Error updating status:', error);
+            }
+        }
+
+        // Filter tabs event listeners
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                currentFilter = this.dataset.filter;
+                
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                displayOrders();
+            });
+        });
+
+        // Load orders on page load and refresh every 5 seconds
+        loadOrders();
+        setInterval(loadOrders, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Patient</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <div class="form-card">
+                <a href="/" class="back-btn">← Back to Dashboard</a>
+                
+                <h1>Add New Patient</h1>
+                <p>Enter patient details to generate a personalized meal plan</p>
+
+                <form id="patientForm">
+                    <div class="form-group">
+                        <label class="form-label" for="name">Patient Name</label>
+                        <input 
+                            type="text" 
+                            id="name" 
+                            name="name" 
+                            class="form-input" 
+                            placeholder="e.g., John Smith"
+                            pattern="[A-Za-z\s]+"
+                            title="Please enter letters only"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="dob">Date of Birth</label>
+                        <input 
+                            type="date" 
+                            id="dob" 
+                            name="dob" 
+                            class="form-input"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="age">Age</label>
+                        <input 
+                            type="number" 
+                            id="age" 
+                            name="age" 
+                            class="form-input" 
+                            placeholder="e.g., 45"
+                            min="1"
+                            max="120"
+                            pattern="[0-9]+"
+                            title="Please enter numbers only"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="condition">Medical Condition</label>
+                        <select id="condition" name="condition" class="form-select" required>
+                            <option value="">Select a condition...</option>
+                            <option value="Type 2 Diabetes">Type 2 Diabetes</option>
+                            <option value="Diabetes">Diabetes (Type 1)</option>
+                            <option value="Anemia (Low Iron)">Anemia (Low Iron)</option>
+                            <option value="Anemia">Anemia (General)</option>
+                            <option value="Hypertension">Hypertension (High Blood Pressure)</option>
+                            <option value="Post-Surgery Recovery">Post-Surgery Recovery</option>
+                            <option value="Surgery Recovery">Surgery Recovery</option>
+                            <option value="Chronic Kidney Disease (Stage 3)">Chronic Kidney Disease (Stage 3)</option>
+                            <option value="Kidney Disease">Kidney Disease (General)</option>
+                            <option value="Heart Disease">Heart Disease</option>
+                            <option value="Cardiovascular Disease">Cardiovascular Disease</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        Generate Meal Plan
+                    </button>
+                </form>
+
+                <div id="successMessage" class="success-message">
+                    ✅ Patient added successfully! Redirecting to meal plan...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('patientForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const dob = document.getElementById('dob').value;
+            const age = document.getElementById('age').value;
+            const condition = document.getElementById('condition').value;
+
+            // Validate name (letters and spaces only)
+            const nameRegex = /^[A-Za-z\s]+$/;
+            if (!nameRegex.test(name)) {
+                alert('Please enter a valid name (letters only)');
+                return;
+            }
+
+            // Validate age (numbers only)
+            if (isNaN(age) || age < 1 || age > 120) {
+                alert('Please enter a valid age (1-120)');
+                return;
+            }
+
+            const formData = {
+                name: name,
+                dob: dob,
+                age: age,
+                condition: condition
+            };
+
+            try {
+                const response = await fetch('/api/add-patient', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Show success message
+                    document.getElementById('successMessage').classList.add('show');
+                    
+                    // Redirect to staff patients page after 1.5 seconds
+                    setTimeout(() => {
+                        window.location.href = '/staff/patients';
+                    }, 1500);
+                }
+            } catch (error) {
+                console.error('Error adding patient:', error);
+                alert('Failed to add patient. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

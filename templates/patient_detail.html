@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ patient.name }} - Meal Plan</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .meal-options-container {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .meal-options-slider {
+            display: flex;
+            transition: transform 0.3s ease;
+        }
+
+        .meal-option {
+            min-width: 100%;
+            padding: 1.5rem;
+        }
+
+        .slider-dots {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: rgba(255, 255, 255, 0.9);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        .slider-arrows {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            padding: 0 0.5rem;
+            z-index: 10;
+        }
+
+        .arrow {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            pointer-events: all;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .arrow:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .order-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .order-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 242, 254, 0.4);
+        }
+
+        .order-btn:disabled {
+            background: linear-gradient(135deg, #ccc 0%, #999 100%);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .view-orders-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+        }
+
+        .view-orders-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .swipe-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: white;
+            font-weight: 600;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Patient Header -->
+        <div class="patient-detail-header">
+            <a href="/" class="back-btn">← Logout</a>
+            
+            <div class="patient-detail-content">
+                <div class="patient-detail-avatar" style="background: {{ patient.avatar_color }};">
+                    {{ patient.name[0] }}
+                </div>
+                
+                <div class="patient-detail-info">
+                    <h1>{{ patient.name }}</h1>
+                    
+                    <div class="patient-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">Age</span>
+                            <span class="meta-value">{{ patient.age }} years</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Condition</span>
+                            <span class="meta-value">{{ patient.condition }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Patient ID</span>
+                            <span class="meta-value">{{ patient.id }}</span>
+                        </div>
+                    </div>
+
+                    <div class="patient-tags">
+                        {% for need in patient.dietary_needs %}
+                        <span class="tag">✓ {{ need }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div style="margin-top: 1.5rem;">
+                        <a href="/patient/{{ patient.id }}/orders" class="view-orders-btn">
+                            📋 View My Orders
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4-Day Meal Plan -->
+        <div class="meal-plan">
+            {% for day in meal_plan %}
+            <div class="day-card">
+                <div class="day-header">
+                    <span class="day-name">{{ day.day }}</span>
+                    <span class="day-date">{{ day.date }}</span>
+                </div>
+
+                <div class="meals-container">
+                    <!-- Breakfast -->
+                    <div class="meal-card">
+                        <div class="meal-type">🍳 Breakfast</div>
+                        <div class="meal-options-container">
+                            <div class="slider-arrows">
+                                <div class="arrow arrow-left" onclick="slideOption(this, -1)">‹</div>
+                                <div class="arrow arrow-right" onclick="slideOption(this, 1)">›</div>
+                            </div>
+
+                            <div class="meal-options-slider">
+                                {% for option in day.meals.breakfast %}
+                                <div class="meal-option">
+                                    <span class="swipe-indicator">👆 Swipe</span>
+                                    <h3 class="meal-name">{{ option.data.name }}</h3>
+                                    
+                                    <div class="nutrition-info">
+                                        <div class="nutrition-grid">
+                                            {% for key, value in option.data.nutritional_info.items() %}
+                                            <div class="nutrition-item">
+                                                <span class="nutrition-label">{{ key.replace('_', ' ').title() }}</span>
+                                                <span class="nutrition-value">{{ value }}</span>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="health-section">
+                                        <div class="health-title">💚 Health Benefits</div>
+                                        <p class="health-text">{{ option.data.health_benefits }}</p>
+                                        
+                                        <div class="health-title">🎯 Why It's Needed</div>
+                                        <p class="health-text">{{ option.data.why_needed }}</p>
+                                    </div>
+
+                                    <button class="order-btn" onclick="placeOrder('{{ patient.id }}', '{{ patient.name }}', '{{ option.data.name }}', 'breakfast', '{{ day.day }}', this)">
+                                        🛒 Order This Meal
+                                    </button>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="slider-dots">
+                                <div class="dot active" onclick="slideToDot(this, 0)"></div>
+                                <div class="dot" onclick="slideToDot(this, 1)"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lunch -->
+                    <div class="meal-card">
+                        <div class="meal-type">🍽️ Lunch</div>
+                        <div class="meal-options-container">
+                            <div class="slider-arrows">
+                                <div class="arrow arrow-left" onclick="slideOption(this, -1)">‹</div>
+                                <div class="arrow arrow-right" onclick="slideOption(this, 1)">›</div>
+                            </div>
+
+                            <div class="meal-options-slider">
+                                {% for option in day.meals.lunch %}
+                                <div class="meal-option">
+                                    <span class="swipe-indicator">👆 Swipe</span>
+                                    <h3 class="meal-name">{{ option.data.name }}</h3>
+                                    
+                                    <div class="nutrition-info">
+                                        <div class="nutrition-grid">
+                                            {% for key, value in option.data.nutritional_info.items() %}
+                                            <div class="nutrition-item">
+                                                <span class="nutrition-label">{{ key.replace('_', ' ').title() }}</span>
+                                                <span class="nutrition-value">{{ value }}</span>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="health-section">
+                                        <div class="health-title">💚 Health Benefits</div>
+                                        <p class="health-text">{{ option.data.health_benefits }}</p>
+                                        
+                                        <div class="health-title">🎯 Why It's Needed</div>
+                                        <p class="health-text">{{ option.data.why_needed }}</p>
+                                    </div>
+
+                                    <button class="order-btn" onclick="placeOrder('{{ patient.id }}', '{{ patient.name }}', '{{ option.data.name }}', 'lunch', '{{ day.day }}', this)">
+                                        🛒 Order This Meal
+                                    </button>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="slider-dots">
+                                <div class="dot active" onclick="slideToDot(this, 0)"></div>
+                                <div class="dot" onclick="slideToDot(this, 1)"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dinner -->
+                    <div class="meal-card">
+                        <div class="meal-type">🌙 Dinner</div>
+                        <div class="meal-options-container">
+                            <div class="slider-arrows">
+                                <div class="arrow arrow-left" onclick="slideOption(this, -1)">‹</div>
+                                <div class="arrow arrow-right" onclick="slideOption(this, 1)">›</div>
+                            </div>
+
+                            <div class="meal-options-slider">
+                                {% for option in day.meals.dinner %}
+                                <div class="meal-option">
+                                    <span class="swipe-indicator">👆 Swipe</span>
+                                    <h3 class="meal-name">{{ option.data.name }}</h3>
+                                    
+                                    <div class="nutrition-info">
+                                        <div class="nutrition-grid">
+                                            {% for key, value in option.data.nutritional_info.items() %}
+                                            <div class="nutrition-item">
+                                                <span class="nutrition-label">{{ key.replace('_', ' ').title() }}</span>
+                                                <span class="nutrition-value">{{ value }}</span>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="health-section">
+                                        <div class="health-title">💚 Health Benefits</div>
+                                        <p class="health-text">{{ option.data.health_benefits }}</p>
+                                        
+                                        <div class="health-title">🎯 Why It's Needed</div>
+                                        <p class="health-text">{{ option.data.why_needed }}</p>
+                                    </div>
+
+                                    <button class="order-btn" onclick="placeOrder('{{ patient.id }}', '{{ patient.name }}', '{{ option.data.name }}', 'dinner', '{{ day.day }}', this)">
+                                        🛒 Order This Meal
+                                    </button>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="slider-dots">
+                                <div class="dot active" onclick="slideToDot(this, 0)"></div>
+                                <div class="dot" onclick="slideToDot(this, 1)"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        function slideOption(arrow, direction) {
+            const container = arrow.closest('.meal-options-container');
+            const slider = container.querySelector('.meal-options-slider');
+            const dots = container.querySelectorAll('.dot');
+            const currentIndex = Array.from(dots).findIndex(dot => dot.classList.contains('active'));
+            const newIndex = currentIndex + direction;
+
+            if (newIndex >= 0 && newIndex < dots.length) {
+                slider.style.transform = `translateX(-${newIndex * 100}%)`;
+                
+                dots.forEach(dot => dot.classList.remove('active'));
+                dots[newIndex].classList.add('active');
+            }
+        }
+
+        function slideToDot(dotElement, index) {
+            const container = dotElement.closest('.meal-options-container');
+            const slider = container.querySelector('.meal-options-slider');
+            const dots = container.querySelectorAll('.dot');
+
+            slider.style.transform = `translateX(-${index * 100}%)`;
+            
+            dots.forEach(d => d.classList.remove('active'));
+            dotElement.classList.add('active');
+        }
+
+        async function placeOrder(patientId, patientName, mealName, mealType, day, button) {
+            button.disabled = true;
+            button.textContent = '⏳ Ordering...';
+
+            try {
+                const response = await fetch('/api/place-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        patient_id: patientId,
+                        patient_name: patientName,
+                        meal_name: mealName,
+                        meal_type: mealType,
+                        day: day
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    button.textContent = '✅ Order Placed!';
+                    button.style.background = 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)';
+                    
+                    // Show tracking prompt after 1.5 seconds
+                    setTimeout(() => {
+                        if (confirm('✅ Order completed! Would you like to track your order?')) {
+                            window.location.href = '/patient/{{ patient.id }}/orders';
+                        } else {
+                            button.textContent = '🛒 Order This Meal';
+                            button.style.background = 'linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)';
+                            button.disabled = false;
+                        }
+                    }, 1500);
+                } else {
+                    button.textContent = '❌ Failed';
+                    button.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error placing order:', error);
+                button.textContent = '❌ Error';
+                button.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

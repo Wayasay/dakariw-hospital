@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Management - Staff Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div>
+                    <h1>👥 Patient Management</h1>
+                    <p>View and manage all registered patients</p>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="/staff" class="add-patient-btn" style="background: rgba(255, 255, 255, 0.2);">
+                        ← Staff Portal
+                    </a>
+                    <a href="/add-patient" class="add-patient-btn">
+                        ➕ Add New Patient
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patients Grid -->
+        <div class="patients-grid">
+            {% for patient in patients %}
+            <div class="patient-card" style="cursor: default;">
+                <div class="patient-header">
+                    <div class="patient-avatar" style="background: {{ patient.avatar_color }};">
+                        {{ patient.name[0] }}
+                    </div>
+                    <div class="patient-info">
+                        <h3>{{ patient.name }}</h3>
+                        <p class="patient-age">{{ patient.age }} years old</p>
+                    </div>
+                </div>
+
+                <div class="patient-condition">
+                    <div class="condition-label">Condition</div>
+                    <div class="condition-name">{{ patient.condition }}</div>
+                </div>
+
+                <div class="patient-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Patient ID:</span>
+                        <span class="detail-value">{{ patient.id }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">DOB:</span>
+                        <span class="detail-value">{{ patient.dob if patient.dob else 'Not set' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Needs:</span>
+                        <span class="detail-value">{{ patient.dietary_needs|join(', ') }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Restrictions:</span>
+                        <span class="detail-value">{{ patient.restrictions|join(', ') }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,105 @@
+🏥 HOSPITAL MEAL PLANNER - HOW TO RUN
+=====================================
+
+⚠️ IMPORTANT: You CANNOT just open the HTML files directly!
+You MUST run the Flask server first to see the beautiful design.
+
+=====================================
+QUICK START (3 SIMPLE STEPS)
+=====================================
+
+STEP 1: Open Terminal/Command Prompt
+-------------------------------------
+Windows: Press Win + R, type "cmd", press Enter
+Mac/Linux: Open Terminal application
+
+STEP 2: Navigate to the Project Folder
+---------------------------------------
+cd path/to/hospital_meal_planner
+
+Example:
+  cd Downloads/hospital_meal_planner
+  cd Desktop/hospital_meal_planner
+
+STEP 3: Run the Startup Script
+-------------------------------
+python start.py
+
+OR if that doesn't work:
+
+python3 start.py
+
+=====================================
+WHAT YOU SHOULD SEE
+=====================================
+
+The terminal will show:
+  🏥 HOSPITAL MEAL PLANNER - STARTING UP...
+  ✅ Flask found
+  🚀 Starting server...
+  👉 Open your browser and go to:
+     http://localhost:5000
+
+=====================================
+OPEN YOUR BROWSER
+=====================================
+
+Once you see "Running on http://127.0.0.1:5000"
+
+Go to: http://localhost:5000
+
+NOW you'll see the beautiful glassmorphism design! 🎨
+
+=====================================
+TROUBLESHOOTING
+=====================================
+
+Problem: "Flask not found" error
+Solution: Install Flask first
+  pip install Flask
+  
+  OR
+  
+  python -m pip install Flask
+
+---
+
+Problem: "Port already in use"
+Solution: Edit app.py, change last line:
+  app.run(debug=True, port=5001)  # Changed from 5000
+
+---
+
+Problem: Nothing shows in browser
+Solution: Make sure you see "Running on..." in terminal
+  Wait 2-3 seconds after running start.py
+  Then open http://localhost:5000
+
+=====================================
+TO STOP THE SERVER
+=====================================
+
+Press: Ctrl + C (in the terminal window)
+
+=====================================
+WHAT EACH FILE DOES
+=====================================
+
+start.py          - Run this to start the server!
+app.py            - Main Flask application (backend)
+templates/        - HTML files (need Flask to render)
+static/css/       - Beautiful glassmorphism CSS
+requirements.txt  - List of needed packages
+
+=====================================
+REMEMBER
+=====================================
+
+✅ DO: Run "python start.py" first
+❌ DON'T: Open HTML files directly in browser
+
+The templates need Flask to work!
+Flask replaces {{ variables }} with real data
+Flask applies the beautiful CSS styling
+
+=====================================
