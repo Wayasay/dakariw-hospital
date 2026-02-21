@@ -9,6 +9,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Mobile-Friendly Base Styles */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+
         .meal-options-container {
             position: relative;
             overflow: hidden;
@@ -22,6 +32,32 @@
         .meal-option {
             min-width: 100%;
             padding: 1.5rem;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Fix Text Overflow - CRITICAL FOR MOBILE */
+        .health-text,
+        .meal-name,
+        .nutrition-label,
+        .nutrition-value,
+        .health-title {
+            max-width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+
+        .health-section {
+            max-width: 100%;
+            padding-right: 10px;
+            box-sizing: border-box;
+        }
+
+        .health-text {
+            line-height: 1.6;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .slider-dots {
@@ -143,6 +179,77 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .meal-option {
+                padding: 1rem;
+            }
+
+            .meal-name {
+                font-size: 1.2rem;
+                margin-bottom: 1rem;
+            }
+
+            .health-text {
+                font-size: 0.9rem;
+                line-height: 1.5;
+                padding-right: 5px;
+            }
+
+            .health-title {
+                font-size: 1rem;
+                margin-top: 1rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .nutrition-grid {
+                gap: 0.5rem;
+            }
+
+            .nutrition-item {
+                font-size: 0.85rem;
+            }
+
+            .swipe-indicator {
+                font-size: 0.75rem;
+                padding: 0.4rem 0.8rem;
+            }
+
+            .arrow {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+
+            .container {
+                padding: 0.5rem;
+            }
+
+            .meal-card {
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* Extra Small Mobile Devices */
+        @media (max-width: 480px) {
+            .meal-option {
+                padding: 0.75rem;
+            }
+
+            .meal-name {
+                font-size: 1.1rem;
+            }
+
+            .health-text {
+                font-size: 0.85rem;
+            }
+
+            .order-btn {
+                font-size: 0.95rem;
+                padding: 0.9rem;
+            }
         }
     </style>
 </head>
@@ -381,7 +488,7 @@
             button.textContent = '⏳ Ordering...';
 
             try {
-                const response = await fetch('/api/place-order', {
+                const response = await fetch('https://dakariw-hospital-hvc5a7aafad8byes.ukwest-01.azurewebsites.net/api/place-order', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
