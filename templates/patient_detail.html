@@ -32,7 +32,8 @@
         .meal-option {
             min-width: 100%;
             padding: 1.5rem;
-            padding-right: 30px;
+            padding-left: 20px;
+            padding-right: 20px;
             max-width: 100%;
             box-sizing: border-box;
         }
@@ -43,15 +44,18 @@
         .nutrition-label,
         .nutrition-value,
         .health-title {
-            max-width: calc(100% - 30px);
+            max-width: 100%;
             word-wrap: break-word;
             overflow-wrap: break-word;
             hyphens: auto;
+            margin: 0;
+            padding: 0;
         }
 
         .health-section {
-            max-width: calc(100% - 30px);
-            padding-right: 20px;
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
             box-sizing: border-box;
         }
 
@@ -59,7 +63,12 @@
             line-height: 1.6;
             font-size: 0.95rem;
             color: rgba(255, 255, 255, 0.9);
-            padding-right: 20px;
+            margin: 0.5rem 0;
+        }
+
+        .health-title {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
         }
 
         .slider-dots {
@@ -118,8 +127,12 @@
             transform: scale(1.1);
         }
 
+        /* CENTERED BUTTON */
         .order-btn {
-            width: calc(100% - 20px);
+            width: 85%;
+            max-width: 400px;
+            margin: 1.5rem auto 0 auto;
+            display: block;
             background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
             color: white;
             padding: 1rem;
@@ -129,7 +142,6 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 1rem;
             box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
         }
 
@@ -185,44 +197,33 @@
 
         /* Mobile Responsive Styles */
         @media (max-width: 768px) {
-            /* HIDE ARROWS ON MOBILE - PREVENTS TEXT OVERLAP */
+            /* HIDE ARROWS ON MOBILE */
             .slider-arrows {
                 display: none !important;
             }
 
             .meal-option {
-                padding: 1rem;
-                padding-right: 25px;
+                padding: 1.2rem;
+                padding-left: 15px;
+                padding-right: 15px;
             }
 
             .meal-name {
                 font-size: 1.2rem;
                 margin-bottom: 1rem;
-                padding-right: 20px;
             }
 
             .health-text {
                 font-size: 0.9rem;
                 line-height: 1.5;
-                padding-right: 25px;
-                max-width: calc(100% - 35px);
             }
 
             .health-title {
                 font-size: 1rem;
-                margin-top: 1rem;
-                margin-bottom: 0.5rem;
-                padding-right: 20px;
-            }
-
-            .health-section {
-                padding-right: 25px;
-                max-width: calc(100% - 35px);
             }
 
             .nutrition-grid {
                 gap: 0.5rem;
-                padding-right: 20px;
             }
 
             .nutrition-item {
@@ -241,35 +242,33 @@
             .meal-card {
                 margin-bottom: 1rem;
             }
+
+            /* BUTTON CENTERED ON MOBILE */
+            .order-btn {
+                width: 90%;
+            }
         }
 
         /* Extra Small Mobile Devices */
         @media (max-width: 480px) {
             .meal-option {
-                padding: 0.75rem;
-                padding-right: 20px;
+                padding: 1rem;
+                padding-left: 12px;
+                padding-right: 12px;
             }
 
             .meal-name {
                 font-size: 1.1rem;
-                padding-right: 18px;
             }
 
             .health-text {
                 font-size: 0.85rem;
-                padding-right: 22px;
-                max-width: calc(100% - 30px);
-            }
-
-            .health-section {
-                padding-right: 22px;
-                max-width: calc(100% - 30px);
             }
 
             .order-btn {
                 font-size: 0.95rem;
                 padding: 0.9rem;
-                width: calc(100% - 15px);
+                width: 92%;
             }
         }
     </style>
